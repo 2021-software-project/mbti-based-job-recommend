@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 
 def cb(userid=0):
     column = ['E', 'S', 'T', 'J', 'I', 'N', 'F', 'P']
-    result_df = pd.read_csv("mbti_to_column_result.csv")
+    result_df = pd.read_csv("./dataset/mbti_to_column_result.csv")
 
     userid = userid
     target_df = result_df.loc[result_df['user_id'] == userid]
