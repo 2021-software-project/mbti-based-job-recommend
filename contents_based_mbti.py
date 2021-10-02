@@ -47,23 +47,16 @@ def contents_based_rec(user_model, k = 5) :
     sim = [[0, 0.0] for x in range(150)]
 
     for index, row in mbti.iterrows():
-
-        user_model = user_model.reshape(8,)
-        row = row[1:].to_numpy()
-        num = np.dot(user_model,row)
-        dem = math.sqrt(sum(user_model))*math.sqrt(sum(user_model*user_model))
+        user_model = user_model.reshape(1, 8)
+        row = row[1:].to_numpy().reshape(1, 8)
 
         sim[i][0] = i
-
-        if dem == 0 :
-            sim[i][1] = 0
-        else :
-            sim[i][1] = num / dem
+        sim[i][1] = cosine_similarity(user_model, row)[0][0]
 
         i += 1
         
     sim = sorted(sim, key=lambda x:x[1], reverse = True)
-#     print(sim)
+    # print(sim)
     rec_job = []
     for num in sim[:rec_num] :
         rec_job += mbti[mbti.index==num[0]].sub_code.tolist()
