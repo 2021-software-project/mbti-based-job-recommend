@@ -40,6 +40,7 @@ def predict_mbti(userid=0):
 def contents_based_rec(user_model, k = 5) :
     
     rec_num = k             # 추천받을 직종 개수
+    user_model = user_model.reshape(1, 8)
     
     mbti = pd.read_csv("./dataset/job_mbti_learn.csv", encoding='UTF-8')
 
@@ -47,7 +48,6 @@ def contents_based_rec(user_model, k = 5) :
     sim = [[0, 0.0] for x in range(150)]
 
     for index, row in mbti.iterrows():
-        user_model = user_model.reshape(1, 8)
         row = row[1:].to_numpy().reshape(1, 8)
 
         sim[i][0] = i
@@ -67,6 +67,6 @@ def contents_based_rec(user_model, k = 5) :
 if __name__=="__main__":
     
     model = predict_mbti(68)
-    rec_job_list = contents_based_rec(model, 5)
+    rec_job_list = contents_based_rec(model, 10)
     
     print(rec_job_list) 
