@@ -18,7 +18,7 @@ def make_sample(user_cnt=100, rating_max_cnt=50):
         sub_code = random.sample(sub_code_list, rating_cnt)
         temp_rating = []
         for sc in sub_code:
-            total_rate.append([i, sc, random.randint(1, 15)])
+            total_rate.append([i, sc, random.randint(1, 5)])
 
     rating_df = pd.DataFrame(data=total_rate, columns=['user_id', 'sub_code', 'rating'])
     rating_df.to_csv("./dataset/random_user_rating.csv", index=False, encoding='utf-8')
