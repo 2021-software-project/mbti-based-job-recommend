@@ -1,32 +1,30 @@
-import pandas as pd
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
 
-def cb(userid=0):
-    column = ['E', 'S', 'T', 'J', 'I', 'N', 'F', 'P']
-    result_df = pd.read_csv("./dataset/mbti_to_column_result.csv")
+def contents_based_rec(user_model, job, k=5):
+    rec_num = k  # 추천받을 직종 개수
+    user_model = user_model
+    job = job
 
-    userid = userid
-    target_df = result_df.loc[result_df['user_id'] == userid]
+    i = 0  # range안에 총 직종 개수만큼 적어주기
+    sim = [[0, 0.0] for x in range(150)]
 
-    x_train, x_test, y_train, y_test = train_test_split(
-        target_df[column],
-        target_df['rating'],
-        test_size=.2,
-        random_state=121)
+    for index, row in job.iterrows():
+        sim[i][0] = row[0]
 
-    reg = LinearRegression()
+        user_model = np.array(user_model).reshape(1, 8)
+        row = row[1:].to_numpy().reshape(1, 8)
+        sim[i][1] = cosine_similarity(user_model, row)[0][0]
 
-    # 학습
-    reg.fit(x_train, y_train)
+        i += 1
 
-    intercept = reg.intercept_
-    coef = reg.coef_
+    sim = sorted(sim, key=lambda x: x[1], reverse=True)
+    # print(sim)
 
-    uesr_profile = pd.DataFrame([intercept, *coef], index=['intercept'] + column, columns=['score'])
+    # 이부분 수정할 것 (쓸데없음)
+    rec_job = []
+    for num in sim[:rec_num]:
+        rec_job.append(num[0])
 
-    print(uesr_profile)
-
-if __name__=="__main__":
-    cb()
+    return rec_job
