@@ -23,9 +23,9 @@ class Recommendation:
 
         if algorithm == 'cb':
             topic = 29
-            data = Data(topic)
-            rating = data.merge_rating_topic(self.rating_df)
             job = pd.read_csv("./dataset/job-topic_29_1.csv")
+            data = Data(job, topic)
+            rating = data.merge_rating_topic(self.rating_df)
             user_model = data.make_user_mbti(rating, user)
 
             rec_list = contents_based_rec(user_model, job, topic, rec_num)  # 추천 리스트

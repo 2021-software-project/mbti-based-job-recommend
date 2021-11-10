@@ -3,10 +3,10 @@ import pandas as pd
 
 class Data:
 
-    def __init__(self, topic):
+    def __init__(self, job, topic):
         self.topic = topic
         self.columns = [str(i) for i in list(range(self.topic))]
-        self.job_df = pd.read_csv("./dataset/job-topic_29_1.csv")
+        self.job_df = job
         self.mbti_df = pd.read_csv("./dataset/mbti-topic_29_1.csv")
 
 
