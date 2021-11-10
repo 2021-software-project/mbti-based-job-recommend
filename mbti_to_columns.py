@@ -25,14 +25,14 @@ def mbti_to_col(data):
 def mtc():
     column = ['E','S','T','J','I','N','F','P']
 
-    df = pd.read_csv("./random_user_rating.csv",encoding='cp949')
-    mbti_df = pd.read_csv("./MBTI list.csv",encoding='cp949')
+    df = pd.read_csv("./dataset/random_user_rating.csv",encoding='cp949')
+    mbti_df = pd.read_csv("./dataset/MBTI list.csv",encoding='cp949')
 
     merge_df = pd.merge(df,mbti_df)
     temp = merge_df.mbti.apply(mbti_to_col)
     mbti_info = pd.DataFrame(temp.tolist(), columns=column)
     result_df = pd.concat([merge_df,mbti_info],axis=1).sort_values(by=['user_id','sub_code']).reset_index(drop=True)
-    result_df.to_csv("mbti_to_column_result.csv",index=False)
+    result_df.to_csv("./dataset/mbti_to_column_result.csv",index=False)
 
 
 if __name__=="__main__":
