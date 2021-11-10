@@ -3,22 +3,31 @@ from sklearn.model_selection import train_test_split
 import sklearn.metrics as metrics
 
 from job_code import sub_code_list
-from data_preprocessing import Data
-from contents_based_rec import *
+import make_sample
+from cb_data_preprocessing import Data
+from cb_contents_rec import *
+from cf_item_rec import Item
+from cf_user_rec import User
 
 
 class Analysis:
 
     def __init__(self):
+        self.topic = 29
         self.code_list = sub_code_list()
 
-        rating_df = pd.read_csv("./dataset/random_user_rating.csv")  # 학습 데이터 셋 = 사용자 평점 정보
+        try:
+            # 학습 데이터 셋 = 사용자 평점 정보
+            rating_df = pd.read_csv('./dataset/random_user_rating.csv')
+        except:
+            make_sample.make_sample()
+            rating_df = pd.read_csv('./dataset/random_user_rating.csv')
+
         self.train_df, self.test_df = train_test_split(rating_df, test_size=0.3, shuffle=True, random_state=121)
         self.test_df = self.test_df[self.test_df['rating'] >= 4]
 
         self.user_list = self.train_df['user_id'].drop_duplicates().values
 
-        self.data = Data()
 
 
     def performance_analysis(self, algorithm, rec_num=5):
@@ -27,18 +36,37 @@ class Analysis:
 
 
         if algorithm == 'cb':
-            rating = self.data.merge_rating_mbti(self.train_df)
-            job = self.data.make_job_mbti(rating)
-            print("if문 cb완료")
+            data = Data(self.topic)
+            rating = data.merge_rating_topic(self.train_df)
+            # job = data.make_job_mbti(rating) # mbti 지표값 사용할때 씀
+            job = pd.read_csv("./dataset/job-topic_29_1.csv")
+
+        elif algorithm == 'cf_i':
+            item_cf = Item(self.train_df)
+            sim = item_cf.calc_item_simmularity()
+
+        elif algorithm == 'cf_u':
+            user_cf = User(self.train_df)
+            sim = user_cf.calc_user_simmularity()
+
 
         k = rec_num  # 추천받을 직종 개수
 
         indicator = [0, 0, 0, 0]  # accuracy, precision, recall, f1score
         for user in self.user_list:
-            print("사용자 ", user, "시작")
+            # print("사용자 ", user, "시작")
             if algorithm == 'cb':
-                user_model = self.data.make_user_mbti(rating, user)
-                rec_list = contents_based_rec(user_model, job, k)  # 추천 리스트
+                user_model = data.make_user_mbti(rating, user)
+                rec_list = contents_based_rec(user_model, job, self.topic, k)  # 추천 리스트
+
+            elif algorithm == 'cf_i':
+                # sim_df = pd.read_csv("./dataset/item_simmularity.csv")
+                rec_list = item_cf.item_based_rec(sim)
+
+            elif algorithm == 'cf_u':
+                # sim_df = pd.read_csv("./dataset/user_simmularity.csv")
+                rec_list = user_cf.user_based_rec(sim)
+
 
             y_pred = pd.DataFrame(columns=self.code_list)
             y_pred.loc[len(y_pred)] = [0 for i in range(150)]  # 초기화
@@ -68,4 +96,9 @@ class Analysis:
 if __name__ == "__main__":
     ana = Analysis()
 
+    print("1. cb")
     ana.performance_analysis('cb', 10)
+    print("2. cf_item based")
+    ana.performance_analysis('cf_i', 10)
+    print("3. cf_user based")
+    ana.performance_analysis('cf_u', 10)
